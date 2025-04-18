@@ -1,5 +1,4 @@
-﻿import { dotnet } from './_framework/dotnet.js'
-import { AssertLoaded } from './Gna.Iata.js'
+﻿import { AssertLoaded } from './Gna.Iata.js'
 export function SsimReader(obj)  
 {
     this.DisrespectLocalTimes = false;

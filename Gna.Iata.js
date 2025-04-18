@@ -1,7 +1,7 @@
 ﻿// note that it expects to load dotnet.js 
-// (and wasm files) from _framework folder
+// (and wasm files) from framework folder
 
-import { dotnet } from './_framework/dotnet.js' 
+import { dotnet } from './framework/dotnet.js' 
 
 export async function Init()
 {
