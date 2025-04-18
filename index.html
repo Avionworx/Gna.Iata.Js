@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gna.Iata.Js</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+</head>
+<body>
+
+
+    <div id="out"
+         style="font-size:50px">
+        <div style="font-size:30px">
+            Initializing (loading web assembly)
+        </div>
+    </div>
+
+    <div id="in">
+        <nav class="navbar bg-body-tertiary ">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <a class="navbar-brand" href="https://www.avionworx.aero">Gna.Iata.Js parsing demo</a>
+                <button class="navbar-brand" data-bs-toggle="modal" data-bs-target="#exampleModal">About</button>
+                <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Select plain or zip-compressed SSIM file</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+
+                        <input type="file" id="fileInput" class="w-75">
+                        <p id="fileStats">
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div id="globeViz" style="width:100%;height:80%;overflow:hidden"></div>
+
+        <table class="table">
+            <thead class="sticky-top"></thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">About Gna.Iata.Js demo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li>
+                            Ssim parsing: <a class="link" href="https://www.avionworx.aero">Avionworx</a>
+                        </li>
+                        <li>
+                            3D Visualisation: <a class="link" href="https://globe.gl/">Globe.GL</a>
+                        </li>
+                        <li>
+                            Airport data: <a class="link" href="https://openflights.org/">Openflights.org</a>
+                        </li>
+                        <li>
+                            CSS Style:<a class="link" href="https://getbootstrap.com/">Bootstrap</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/globe.gl"></script>
+    <script type="module" src="index.js"></script>
+
+</body>
+</html>
