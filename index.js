@@ -1,10 +1,10 @@
-﻿import { Init, dotnet } from './Gna.Iata.js'
+﻿import { Init } from './GnaIata/Gna.Iata.js'
 
-import { Season } from './Gna.Iata.Season.js'
+import { Season } from './GnaIata/Gna.Iata.Season.js'
 
-import { SsimReader } from './Gna.Iata.Ssim.SsimReader.js'
+import { SsimReader } from './GnaIata/Gna.Iata.Ssim.SsimReader.js'
 
-import { MakeGlobe } from './globe.js'
+import { MakeGlobe, ClearGlobe } from './globe.js'
 
 await Init();
 
@@ -17,27 +17,63 @@ function bindFileInput() {
     elem.addEventListener("change", async () => {
         if (elem.files.length == 1) {
 
-            ClearTable();
+            hideError();
 
-            var ssimReader = new SsimReader();
-            let start = performance.now();
+            ClearGlobe();
 
-            var legs = await ssimReader.ReadFromFileAsync(elem.files[0]);
-            
-            let timeConsumed = performance.now() - start;
+            showProgressBar();
+            try {
+                ClearTable();
 
-            console.log(`ReadFromFileAsync: ${legs.length} legs, time: ${timeConsumed}`);
+                const stats = document.getElementById("fileStats");
+                stats.innerText = "";
 
-            //  CreateTable(legs);
+                var ssimReader = new SsimReader();
 
-            const stats = document.getElementById("fileStats");
-            var routes = getRoutes(legs);
 
-            stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes`;
+                ssimReader.Options.SkipValidation = isChecked("checkSkipValidation");
+                ssimReader.Options.SuppressSsimErrors = isChecked("checkSuppressSsimErrors");
+                ssimReader.Options.IgnoreSegmentData = isChecked("checkIgnoreSegmentData");
+                
+                let start = performance.now();
 
-            MakeGlobe(routes);
+                var legs = (await ssimReader.ReadFromFileAsync(elem.files[0])).Legs;
+
+                let parsingTimeConsumed = performance.now() - start;
+
+                console.log(`ReadFromFileAsync: ${legs.length} legs, time: ${parsingTimeConsumed}`);
+
+                //  CreateTable(legs);
+
+
+                var routes = getRoutes(legs);
+
+                stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes \n Parsing time taken: ${(parsingTimeConsumed / 1000).toFixed(2)} seconds `;
+
+                start = performance.now();
+
+                MakeGlobe(routes);
+
+                let renderTimeConsumed = performance.now() - start;
+
+                stats.innerText += `\n 3d prepare time taken: ${(renderTimeConsumed / 1000).toFixed(2)} seconds `;
+            }
+            catch(ex)
+            {
+                showError(ex);
+            }
+            finally {
+                hideProgressBar();
+            }
         }
     });
+}
+
+function isChecked(id) {
+    var checkbox = document.getElementById(id);
+    if (checkbox)
+        return checkbox.checked;
+    return false;
 }
 
 function getRoutes(legs) {
@@ -57,11 +93,30 @@ function getRoutes(legs) {
     return routes;
 }
 
+function hideProgressBar() {
+    document.getElementById("out").classList.add("d-none");
+}
+
+function showProgressBar() {
+    document.getElementById("out").classList.remove("d-none");
+}
+
+function showError(error) {
+    document.getElementById("fileInput").classList.add("is-invalid");
+    document.getElementById("fileError").innerHTML = error;
+    fileError
+}
+
+function hideError() {
+    document.getElementById("fileInput").classList.remove("is-invalid");
+    document.getElementById("fileError").innerHTML = "";
+}
+
 function afterInit() {
 
     bindFileInput();
 
-    document.getElementById("out").classList.add("d-none");
+    hideProgressBar();
     document.getElementById("in").classList.remove("d-none");
 
     TestSeason();
@@ -76,11 +131,7 @@ function TestSeason() {
     const season2015 = seasonNow.CreateFromDate(new Date(2015, 11, 17, 3, 24, 0));
     const season2015contains = season2015.Contains(new Date(2015, 11, 17, 3, 24, 0));
 
-    console.log(`Now is ${seasonNow.Name}, previous was ${seasonPrev.Name}`);
-
-    // adding the result of Greet method call to the inner text of
-    // an element out id "out"
-    //document.getElementById("out").innerText = `Now is ${seasonNow.Name}, previous was ${seasonPrev.Name}`;
+    console.log(`Now is ${seasonNow.Name}, previous was ${seasonPrev.Name}`); 
 }
 
 function ClearTable() {

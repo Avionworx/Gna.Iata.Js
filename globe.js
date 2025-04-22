@@ -1,14 +1,15 @@
 ﻿import { csvParseRows } from 'https://esm.sh/d3-dsv';
 import indexBy from 'https://esm.sh/index-array-by';
 
+let myGlobe = null;
+
 export function MakeGlobe(legs) {
+     
+    const OPACITY = 0.2;
 
-  //  const COUNTRY = 'Portugal';
-   // const MAP_CENTER = { lat: 37.6, lng: -16.6, altitude: 0.4 };
-    const OPACITY = 0.6;
-
-    const myGlobe = new Globe(document.getElementById('globeViz'))
-        .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg')
+    if (myGlobe == null)
+    myGlobe = new Globe(document.getElementById('globeViz'))
+        .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
 
         .arcLabel(d => `${d.airline}: ${d.srcIata} &#8594; ${d.dstIata}`)
         .arcStartLat(d => d.srcAirport.lat)
@@ -16,15 +17,15 @@ export function MakeGlobe(legs) {
         .arcEndLat(d => d.dstAirport.lat)
         .arcEndLng(d => d.dstAirport.lng)
         .arcColor(d => [`rgba(0, 255, 0, ${OPACITY})`, `rgba(255, 0, 0, ${OPACITY})`])
-        .arcDashLength(0.4)
-        .arcDashGap(0.2)
+        .arcDashLength(0.8)
+        .arcDashGap(0.8)
         .arcDashAnimateTime(1500)
-        .onArcHover(hoverArc => myGlobe
-            .arcColor(d => {
-                const op = !hoverArc ? OPACITY : d === hoverArc ? 0.9 : OPACITY / 4;
-                return [`rgba(0, 255, 0, ${op})`, `rgba(255, 0, 0, ${op})`];
-            })
-        ) 
+        //.onArcHover(hoverArc => myGlobe
+        //    .arcColor(d => {
+        //        const op = !hoverArc ? OPACITY : d === hoverArc ? 0.9 : OPACITY / 4;
+        //        return [`rgba(0, 255, 0, ${op})`, `rgba(255, 0, 0, ${op})`];
+        //    })
+        //) 
         .pointColor(() => 'orange')
         .pointAltitude(0)
         .pointRadius(0.04)
@@ -32,8 +33,7 @@ export function MakeGlobe(legs) {
 
     // load data
     const airportParse = ([airportId, name, city, country, iata, icao, lat, lng, alt, timezone, dst, tz, type, source]) => ({ airportId, name, city, country, iata, icao, lat, lng, alt, timezone, dst, tz, type, source });
-  //  const routeParse = ([airline, airlineId, srcIata, srcAirportId, dstIata, dstAirportId, codeshare, stops, equipment]) => ({ airline, airlineId, srcIata, srcAirportId, dstIata, dstAirportId, codeshare, stops, equipment });
-
+ 
     var legAirports = new Set(); 
     var legRoutes = new Set();
     var routes = [];
@@ -87,6 +87,15 @@ export function MakeGlobe(legs) {
             .arcsData(filteredRoutes)
             .pointOfView(MAP_CENTER, 4000);
     });
+}
+
+export function ClearGlobe() {
+
+    if (myGlobe != null) {
+        myGlobe
+            .pointsData([])
+            .arcsData([]);
+    }
 }
 
 function rad2degr(rad) { return rad * 180 / Math.PI; }

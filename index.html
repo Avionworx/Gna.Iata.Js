@@ -8,10 +8,10 @@
 <body>
 
 
-    <div id="out"
-         style="font-size:50px">
-        <div style="font-size:30px">
-            Initializing (loading web assembly)
+    <div id="out" style="font-size:50px;position:absolute;left:25%;right:25%;top:25%;bottom:50%">
+        <div class="d-flex align-items-center">
+            <strong>Loading...</strong>
+            <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
         </div>
     </div>
 
@@ -22,20 +22,40 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                       <a class="navbar-brand" href="#"                   
-                   title="This website shows how the same C# code (Gna.Iata library) can be used in regular JavaScript websites (wasm modules). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms."
+                   title="This website shows how the same C# code (Gna.Iata library) can be used in regular JavaScript websites (wasm modules). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any modern browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms."
                    >Gna.Iata.Js Demo</a>
                 <button class="navbar-brand" data-bs-toggle="modal" data-bs-target="#exampleModal">About</button>
-                <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                <div class="offcanvas offcanvas-start show" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
                     <div class="offcanvas-header">
                         <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Select plain or zip-compressed SSIM file</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
                     <div class="offcanvas-body">
 
-                        <input type="file" id="fileInput" class="w-75">
+                        <input type="file" id="fileInput" class="w-75 is-invalid">
+                        <div id="fileError" class="invalid-feedback"></div>
                         <p id="fileStats">
 
                         </p>
+                        <hr />
+                        <div class="form-check" title="If checked, segment information is not processed">
+                            <input class="form-check-input" type="checkbox" value="" id="checkIgnoreSegmentData" checked>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Ignore Segment Data
+                            </label>
+                        </div>
+                        <div class="form-check" title="If checked, ssim reading/parsing errors are ignored">
+                            <input class="form-check-input" type="checkbox" value="" id="checkSupressSsimErrors" checked>
+                            <label class="form-check-label" for="flexCheckChecked">
+                                Suppress Ssim Errors
+                            </label>
+                        </div>
+                        <div class="form-check" title="If checked, ssim reading does not validate against IATA compliance">
+                            <input class="form-check-input" type="checkbox" value="" id="checkSkipValidation" checked>
+                            <label class="form-check-label" for="flexCheckChecked">
+                                Skip IATA Validation
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -55,13 +75,13 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">About Gna.Iata.Js demo</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">About Gna.Iata.Js Demo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
 
                     <p>
-                        This website shows how the same C# code (Gna.Iata library) can be used in regular JavaScript websites (wasm modules). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.
+                        This website demonstrates use of (<a href="https://www.nuget.org/packages/Gna.Iata">Gna.Iata library</a>) in regular JavaScript website (as wasm module). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.
                     </p>
                     <ul>
                         <li>
