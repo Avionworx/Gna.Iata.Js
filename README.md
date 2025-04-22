@@ -48,7 +48,7 @@ elem.addEventListener("change", async () => {
         if (elem.files.length == 1) {
 
             // Read legs from selected file            
-            let legs = (await ssimReader.ReadFromFileAsync(elem.files[0]).Legs;
+            let legs = (await ssimReader.ReadFromFileAsync(elem.files[0])).Legs;
             // do something with legs here
             // legs.forEach(leg => { ... })
 
