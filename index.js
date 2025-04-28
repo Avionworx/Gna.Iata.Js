@@ -2,33 +2,41 @@
 
 import { Season } from './GnaIata/Gna.Iata.Season.js'
 
-import { SsimReader } from './GnaIata/Gna.Iata.Ssim.SsimReader.js'
+import { SsimReader } from './GnaIata/Gna.Iata.SsimReader.js'
+import { SsimWriter } from './GnaIata/Gna.Iata.SsimWriter.js'
 
 import { MakeGlobe, ClearGlobe } from './globe.js'
+
+let legs = [];
+let fileName = "";
 
 await Init();
 
 afterInit();
- 
+
 function bindFileInput() {
-    const elem = document.getElementById("fileInput");
-    elem.type = "file";
+    const fileInput = document.getElementById("fileInput");
+    fileInput.type = "file";
 
-    elem.addEventListener("change", async () => {
-        if (elem.files.length == 1) {
+    fileInput.addEventListener("change", async () => {
+        if (fileInput.files.length == 1) {
 
-            hideError();
+            legs = [];
+            fileName = "";
+
+            hideReadError();
+            hideWriteError();
 
             ClearGlobe();
 
-            showProgressBar();
+            showProgressBar("Loading ssim file");
             try {
                 ClearTable();
 
                 const stats = document.getElementById("fileStats");
                 stats.innerText = "";
 
-                var ssimReader = new SsimReader();
+                let ssimReader = new SsimReader();
 
 
                 ssimReader.Options.SkipValidation = isChecked("checkSkipValidation");
@@ -37,18 +45,25 @@ function bindFileInput() {
                 
                 let start = performance.now();
 
-                var legs = (await ssimReader.ReadFromFileAsync(elem.files[0])).Legs;
+                legs = (await ssimReader.ReadFromFileAsync(fileInput.files[0])).Legs;
+                fileName = fileInput.files[0].name;
 
                 let parsingTimeConsumed = performance.now() - start;
 
                 console.log(`ReadFromFileAsync: ${legs.length} legs, time: ${parsingTimeConsumed}`);
 
-                //  CreateTable(legs);
-
-
                 var routes = getRoutes(legs);
 
-                stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes \n Parsing time taken: ${(parsingTimeConsumed / 1000).toFixed(2)} seconds `;
+                var tableRoutes = [];
+
+                routes.forEach(route => {
+                    tableRoutes.push({ Dep: route.DepAirportCode, Arr: route.ArrAirportCode });
+                });
+
+                CreateTable(tableRoutes);
+
+                stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes \n`
+/// Parsing time taken: ${ (parsingTimeConsumed / 1000).toFixed(2) } seconds `;
 
                 start = performance.now();
 
@@ -56,17 +71,72 @@ function bindFileInput() {
 
                 let renderTimeConsumed = performance.now() - start;
 
-                stats.innerText += `\n 3d prepare time taken: ${(renderTimeConsumed / 1000).toFixed(2)} seconds `;
+//                stats.innerText += `\n 3d prepare time taken: ${(renderTimeConsumed / 1000).toFixed(2)} seconds `;
             }
             catch(ex)
             {
-                showError(ex);
+                showReadError(ex);
             }
             finally {
                 hideProgressBar();
             }
         }
     });
+
+    const saveButton = document.getElementById("saveButton");
+    saveButton.addEventListener("click", async () => {
+
+        hideWriteError();
+
+        if (fileName) {
+            try {
+                showProgressBar("Downloading ssim file");
+                let ssimWriter = new SsimWriter();
+                ssimWriter.Options.LocalTime = !isChecked("checkUTC")
+                ssimWriter.Options.IgnoreDuplicates = isChecked("checkIgnoreDuplicates");
+                ssimWriter.Legs = legs;                
+                let start = performance.now();
+
+                var filename = fileName.split('.').slice(0, -1);
+
+                let data = "";
+
+                if (isChecked("checkCompressed")) {
+                    data = await ssimWriter.WriteToStreamAsync(filename.join(".ssim"), true);
+                    filename = filename + ".zip";
+                }
+                else {
+                    data = await ssimWriter.WriteToStringAsync();
+                    filename = filename + ".ssim";
+                }
+
+                let writingTimeConsumed = performance.now() - start;
+                console.log(`WriteToStringAsync: ${legs.length} legs, time: ${writingTimeConsumed}`);
+
+                download(data, filename);
+            }
+            catch (ex) {
+                showWriteError(ex);
+            }
+            finally {
+                hideProgressBar();
+            }
+        }
+        else
+            showWriteError("Load ssim file first");
+    });
+} 
+
+function download(data, filename) {
+
+    const blob = new Blob([data]);
+    const url = URL.createObjectURL(blob);
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = filename ?? '';
+    anchorElement.click();
+    anchorElement.remove();
+    URL.revokeObjectURL(url);
 }
 
 function isChecked(id) {
@@ -91,25 +161,47 @@ function getRoutes(legs) {
         }
     });
     return routes;
+} 
+
+function updateControls() {
+    if (legs?.length > 0)
+        document.getElementById("downloadArea").classList.remove("d-none");
+    else
+        document.getElementById("downloadArea").classList.add("d-none");
 }
 
 function hideProgressBar() {
+    document.getElementById("progressText").innerHTML = "";
     document.getElementById("out").classList.add("d-none");
+    document.getElementById("globeViz").classList.remove("d-none");
+    updateControls();
 }
 
-function showProgressBar() {
+function showProgressBar(text) {
+    document.getElementById("progressText").innerHTML = text;
     document.getElementById("out").classList.remove("d-none");
+    document.getElementById("globeViz").classList.add("d-none");
+    updateControls();
 }
 
-function showError(error) {
+function showReadError(error) {
     document.getElementById("fileInput").classList.add("is-invalid");
-    document.getElementById("fileError").innerHTML = error;
-    fileError
+    document.getElementById("fileError").innerHTML = error; 
 }
 
-function hideError() {
+function showWriteError(error) {
+    document.getElementById("saveButton").classList.add("is-invalid");
+    document.getElementById("fileWriteError").innerHTML = error; 
+}
+
+function hideReadError() {
     document.getElementById("fileInput").classList.remove("is-invalid");
-    document.getElementById("fileError").innerHTML = "";
+    document.getElementById("fileError").innerHTML = ""; 
+}
+
+function hideWriteError() {
+    document.getElementById("saveButton").classList.remove("is-invalid");
+    document.getElementById("fileWriteError").innerHTML = "";
 }
 
 function afterInit() {

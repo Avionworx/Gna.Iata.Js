@@ -1,13 +1,13 @@
 ﻿// note that it expects to load dotnet.js 
 // (and wasm files) from framework folder
 
-import { dotnet } from './framework/dotnet.js' 
+import { dotnet } from './framework/dotnet.js'  
+ 
+let exports = undefined;
 
 export async function Init()
 {
-    if (window.avionworx === undefined) {
-        const is_browser = typeof window != "undefined";
-        if (!is_browser) throw new Error(`Expected to be running in a browser`);
+    if (!exports) { 
 
         // get the objects needed to run exported C# code
         const { getAssemblyExports, getConfig } =
@@ -17,14 +17,14 @@ export async function Init()
         const config = getConfig();
 
         // exports contain the methods exported by C#
-        window.avionworx = await getAssemblyExports(config.mainAssemblyName);
+        exports = await getAssemblyExports(config.mainAssemblyName); 
     }
+    return exports;
 } 
 
 export function AssertLoaded() {
-    if (window.avionworx === undefined) {
+    if (!exports) {
         throw new Error("Please call Init method from Gna.Iata module");
     }
-}
-
-export { dotnet };
+    return exports;
+} 

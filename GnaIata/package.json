@@ -1,0 +1,12 @@
+{
+  "name": "Gna.Iata.Js",
+  "version": "1.0.210",
+  "main": "Gna.Iata.js",
+  "description": "WASM port of Gna.Iata library to work with IATA Ssim files. IATA ssim read and write with JavaScript",
+  "keywords": ["IATA", "ssim", "read", "write", "js", "javascript"],
+  "author": {
+    "name": "Marcin Mielcarek",
+    "url": "https://www.avionworx.aero"
+  },
+  "homepage": "https://github.com/Avionworx/Gna.Iata.Js" 
+}

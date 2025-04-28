@@ -1,12 +1,14 @@
 About:
 -------
-This repository demonstrates use of IATA SSIM Parsing Writing Library [Gna.Iata](https://www.nuget.org/packages/Gna.Iata) in regular JavaScript website (as wasm module).
-
-Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any modern browser. 
+This repository demonstrates use of C# IATA SSIM Parsing Writing Library [Gna.Iata](https://www.nuget.org/packages/Gna.Iata) in regular JavaScript website (as wasm module). The implementation does use Web Workers to not block the main UI thread when working with SSIM file.
 
 Working demo: 
 -------------
 https://avionworx.github.io/Gna.Iata.Js/
+* Iata Ssim parsing <a class="link" href="https://www.avionworx.aero">Avionworx</a> [wasm]
+* 3D Visualisation: <a class="link" href="https://globe.gl/">Globe.GL</a> [threejs]
+* Airport data: <a class="link" href="https://ourairports.com/data/">OurAirports</a>
+* CSS :<a class="link" href="https://getbootstrap.com/">Bootstrap</a> [css]
 
 How to use it:
 -------
@@ -38,7 +40,7 @@ await Init();
 
 ...
 
-// Create SsimReader object
+// Ssim reading
 
 let ssimReader = new SsimReader();
 
@@ -55,6 +57,14 @@ elem.addEventListener("change", async () => {
         }
 });
 
-```
+// Ssim writing
 
+let ssimWriter = new SsimWriter();
+ssimWriter.Legs = legs;
+ssimWriter.Options.LocalTime = true;
+
+let output = await ssimWriter.WriteToStringAsync();
+
+
+```
 
