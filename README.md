@@ -1,6 +1,6 @@
 About:
 -------
-This repository demonstrates use of C# IATA SSIM Parsing Writing Library [Gna.Iata](https://www.nuget.org/packages/Gna.Iata) in regular JavaScript website (as wasm module). The implementation does use Web Workers to not block the main UI thread when working with SSIM file.
+This repository demonstrates use of C# IATA SSIM Parsing Writing Library [Gna.Iata](https://www.nuget.org/packages/Gna.Iata) in regular vanilla javaScript website (as WASM module). The implementation does use web workers to not block the main UI thread when working with SSIM file.
 
 Working demo: 
 -------------
@@ -68,3 +68,17 @@ let output = await ssimWriter.WriteToStringAsync();
 
 ```
 
+Performance:
+---------------------
+
+|Number of legs| .NET Read | WASM Read | .NET Write | WASM Write |
+|--------------|-----------|-----------|------------|------------|
+| 6710  | 15 ms | 66 ms | 19 ms | 226 ms |
+| 79651 | 66 ms | 352 ms | 198 ms | 1354 ms| 
+| 235599 | 409 ms | 1131 ms | 937 ms |3829ms | 
+
+Although the above numbers show that the execution under AOT WASM assembly is 4 times slower on average than native .NET execution, it is worth remembering that WASM is limited to a single thread only, which is probably the main reason for the big difference.
+
+It is also important to mention that:
+-  the above measurements don't include communication overhead between javaScript (web workers) and WASM module.
+- WASM modules were compiled with [AOT](https://learn.microsoft.com/en-us/aspnet/core/blazor/webassembly-build-tools-and-aot?view=aspnetcore-9.0) option
