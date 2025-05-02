@@ -7,8 +7,13 @@ import { SsimWriter } from './GnaIata/Gna.Iata.SsimWriter.js'
 
 import { MakeGlobe, ClearGlobe } from './globe.js'
 
+import { GetSampleLegs } from "./sampleSsim.js"
+
 let legs = [];
+let routes = [];
 let fileName = "";
+
+const rowLimit = 1000;
 
 await Init();
 
@@ -22,16 +27,17 @@ function bindFileInput() {
         if (fileInput.files.length == 1) {
 
             legs = [];
+            routes = [];
             fileName = "";
 
             hideReadError();
             hideWriteError();
 
             ClearGlobe();
+            ClearTable();
 
             showProgressBar("Loading ssim file");
-            try {
-                ClearTable();
+            try { 
 
                 const stats = document.getElementById("fileStats");
                 stats.innerText = "";
@@ -52,15 +58,8 @@ function bindFileInput() {
 
                 console.log(`ReadFromFileAsync: ${legs.length} legs, time: ${parsingTimeConsumed}`);
 
-                var routes = getRoutes(legs);
-
-                var tableRoutes = [];
-
-                routes.forEach(route => {
-                    tableRoutes.push({ Dep: route.DepAirportCode, Arr: route.ArrAirportCode });
-                });
-
-                CreateTable(tableRoutes);
+                routes = getRoutes(legs); 
+                
 
                 stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes \n`
 /// Parsing time taken: ${ (parsingTimeConsumed / 1000).toFixed(2) } seconds `;
@@ -70,6 +69,8 @@ function bindFileInput() {
                 MakeGlobe(routes);
 
                 let renderTimeConsumed = performance.now() - start;
+
+                CreateTable(legs);
 
 //                stats.innerText += `\n 3d prepare time taken: ${(renderTimeConsumed / 1000).toFixed(2)} seconds `;
             }
@@ -125,6 +126,32 @@ function bindFileInput() {
         else
             showWriteError("Load ssim file first");
     });
+
+
+    const sampleButton = document.getElementById("pills-demo-tab");
+
+    sampleButton?.addEventListener("click", async () => {
+
+       // showProgressBar("Getting sample legs");
+        ClearGlobe();
+        ClearTable();
+
+        try {
+            fileName = "sampleLegs.ssim";
+            legs = await GetSampleLegs();
+
+            routes = getRoutes(legs);
+
+            MakeGlobe(routes); 
+            CreateTable(legs);
+        }
+        catch (ex) {
+            showWriteError(ex);
+        }
+        finally {
+            hideProgressBar();
+        }
+    });
 } 
 
 function download(data, filename) {
@@ -164,10 +191,30 @@ function getRoutes(legs) {
 } 
 
 function updateControls() {
-    if (legs?.length > 0)
-        document.getElementById("downloadArea").classList.remove("d-none");
-    else
-        document.getElementById("downloadArea").classList.add("d-none");
+    if (legs?.length > 0) {
+
+        document.getElementById("pills-download-tab").removeAttribute('disabled');
+        document.getElementById("pills-table-tab").removeAttribute('disabled');
+        document.getElementById("pills-globe-tab").removeAttribute('disabled');
+
+        if (legs?.length > rowLimit) {
+            document.getElementById("rowCaptionTop").innerHTML = `Showing first ${rowLimit} legs only`;
+            document.getElementById("rowCaptionBottom").innerHTML = `Showing first ${rowLimit} legs only`;
+        }
+    }
+    else {
+        document.getElementById("rowCaptionTop").innerHTML = "";
+        document.getElementById("rowCaptionBottom").innerHTML = "";
+        document.getElementById("pills-download-tab").setAttribute('disabled', '');
+        document.getElementById("pills-table-tab").setAttribute('disabled', '');
+        document.getElementById("pills-globe-tab").setAttribute('disabled', '');
+    }
+
+    document.getElementById("legsCount").innerHTML = legs?.length ?? 0;
+    document.getElementById("routesCount").innerHTML = routes?.length ?? 0;
+
+
+
 }
 
 function hideProgressBar() {
@@ -257,18 +304,51 @@ function CreateTable(parsed_data) {
     });
     document.querySelector("thead").appendChild(th)
 
+    var rowCount = 0;
+
     parsed_data.forEach(json_data_set => {
-        var tr = document.createElement("tr")
-        Object.keys(json_data_set).forEach(key => {
+        var tr = document.createElement("tr");
+
+        if (rowCount++ > rowLimit)
+            return;
+
+        Object.keys(json_data_set).forEach(key => { 
 
             if (columns.has(key)) {
                 var td = document.createElement("td")
-                td.innerText = json_data_set[key]
+
+                var cell = json_data_set[key];
+
+                if (cell instanceof Date) {
+                    if (key == "FlightDate")
+                        cell = dateFormat(cell);
+                    else
+                        cell = dateTimeFormat(cell);
+                }
+                td.innerText = cell;
                 tr.appendChild(td)
-            }
+            }  
         });
 
         document.querySelector("tbody").appendChild(tr)
 
     });
+}
+
+const dateFormat = (date, locale = "en-US") => {
+    let d = date.getDate(),
+        m = date.toLocaleString(locale, { month: 'long' }).toUpperCase(),
+        y = date.getFullYear().toString().substr(-2);
+
+    return `${y}${m}${y} `;
+}
+
+const dateTimeFormat = (date, locale = "en-US") => {
+    let d = date.getDate(),
+        m = date.toLocaleString(locale, { month: 'long' }).toUpperCase(),
+        y = date.getFullYear().toString().substr(-2),
+        h = date.getHours(),
+        min = date.getMinutes();
+
+    return `${y}${m}${y} ${h}${min}`;
 }

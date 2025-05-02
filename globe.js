@@ -4,7 +4,7 @@ let myGlobe = null;
 
 export function MakeGlobe(legs) {
      
-    const OPACITY = 0.2;
+    const OPACITY = 1;
 
     if (myGlobe == null)
         myGlobe = new Globe(document.getElementById('globeViz'))//, { width:100,height:100 })
@@ -41,6 +41,8 @@ export function MakeGlobe(legs) {
         legAirports.add(leg.ArrAirportCode);
 
         let route = leg.DepAirportCode + leg.ArrAirportCode;
+
+        if (routes.length > 1000) return;
 
         if (!legRoutes.has(route)) {
             legRoutes.add(route);
