@@ -16,122 +16,156 @@
     </div>
 
     <div id="in">
-        <nav class="navbar bg-body-tertiary ">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+
+            <li class="nav-item link" role="presentation">
+                <button class="nav-link" id="pills-demo-tab"
+                        type="button" role="tab" title="Load some random example data">
+                    🎲 Shuffle
                 </button>
-                <a class="navbar-brand" href="#"
-                   title="This website shows how the same C# code (Gna.Iata library) can be used in regular JavaScript websites (wasm modules). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any modern browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.">Gna.Iata.Js Demo</a>
-                <button class="navbar-brand" data-bs-toggle="modal" data-bs-target="#exampleModal">About</button>
-                <div class="offcanvas offcanvas-start show" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-                    <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Select plain or zip-compressed SSIM file</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                    </div>
-                    <div class="offcanvas-body">
+            </li>
 
-                        <input type="file" id="fileInput" class="w-75 is-invalid">
-                        <div id="fileError" class="invalid-feedback"></div>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-upload-tab" data-bs-toggle="pill" data-bs-target="#pills-upload" type="button" role="tab" aria-controls="pills-upload" aria-selected="true">⬆ SSIM Upload</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-table-tab" data-bs-toggle="pill" data-bs-target="#pills-table" type="button" role="tab" aria-controls="pills-table" aria-selected="false">
+                    ✈Legs <span class="badge text-bg-light" id="legsCount"></span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-globe-tab" data-bs-toggle="pill" data-bs-target="#pills-globe" type="button" role="tab" aria-controls="pills-globe" aria-selected="false">
+                    🌎 Routes<span class="badge text-bg-light" id="routesCount"></span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-download-tab" data-bs-toggle="pill" data-bs-target="#pills-download" type="button" role="tab" aria-controls="pills-download" aria-selected="false">⬇SSIM Download</button>
+            </li>
 
-                        <div class="form-check" title="If checked, segment information is not processed">
-                            <input class="form-check-input" type="checkbox" value="" id="checkIgnoreSegmentData" checked>
-                            <label class="form-check-label" for="checkIgnoreSegmentData">
-                                Ignore Segment Data
-                            </label>
-                        </div>
-                        <div class="form-check" title="If checked, ssim reading/parsing errors are ignored">
-                            <input class="form-check-input" type="checkbox" value="" id="checkSupressSsimErrors" checked>
-                            <label class="form-check-label" for="checkSupressSsimErrors">
-                                Suppress Ssim Errors
-                            </label>
-                        </div>
-                        <div class="form-check" title="If checked, ssim reading does not validate against IATA compliance">
-                            <input class="form-check-input" type="checkbox" value="" id="checkSkipValidation" checked>
-                            <label class="form-check-label" for="checkSkipValidation">
-                                Skip IATA Validation
-                            </label>
-                        </div>
-                        <p id="fileStats">
-                        </p>
-                        <hr />
-                        <div id="downloadArea" css="d-none">
-                            <button type="button" id="saveButton">Download</button>
-                            <div id="fileWriteError" class="invalid-feedback"></div>
-                            <div class="form-check" title="If checked, ssim output will be UTC mode">
-                                <input class="form-check-input" type="checkbox" value="" id="checkUTC" checked>
-                                <label class="form-check-label" for="checkLocal">
-                                    UTC mode
-                                </label>
-                            </div>
-                            <div class="form-check" title="If checked, ssim file will be inside zip archive">
-                                <input class="form-check-input" type="checkbox" value="" id="checkCompressed" checked>
-                                <label class="form-check-label" for="checkCompressed">
-                                    Compressed (zip)
-                                </label>
-                            </div>
-                            <div class="form-check" title="If checked, duplicated legs will be ignored">
-                                <input class="form-check-input" type="checkbox" value="" id="checkIgnoreDuplicates" checked>
-                                <label class="form-check-label" for="checkIgnoreDuplicates">
-                                    Ignore Duplicated legs
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-about-tab"
+                        data-bs-toggle="modal" data-bs-target="#exampleModal" type="button" role="tab" aria-controls="pills-about" aria-selected="false">
+                    ℹAbout
+                </button>
+            </li>
+        </ul>
+        <hr />
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-upload" role="tabpanel" aria-labelledby="pills-upload-tab" tabindex="0">
+
+
+                <h1>Select plain or zip-compressed SSIM file</h1>
+
+                <input type="file" id="fileInput" class="w-75 is-invalid">
+                <div id="fileError" class="invalid-feedback"></div>
+
+                <div class="form-check" title="If checked, segment information is not processed">
+                    <input class="form-check-input" type="checkbox" value="" id="checkIgnoreSegmentData" checked>
+                    <label class="form-check-label" for="checkIgnoreSegmentData">
+                        Ignore Segment Data
+                    </label>
                 </div>
+                <div class="form-check" title="If checked, ssim reading/parsing errors are ignored">
+                    <input class="form-check-input" type="checkbox" value="" id="checkSupressSsimErrors" checked>
+                    <label class="form-check-label" for="checkSupressSsimErrors">
+                        Suppress Ssim Errors
+                    </label>
+                </div>
+                <div class="form-check" title="If checked, ssim reading does not validate against IATA compliance">
+                    <input class="form-check-input" type="checkbox" value="" id="checkSkipValidation" checked>
+                    <label class="form-check-label" for="checkSkipValidation">
+                        Skip IATA Validation
+                    </label>
+                </div>
+                <p id="fileStats">
+                </p>
             </div>
-        </nav>
+            <div class="tab-pane fade" id="pills-table" role="tabpanel" aria-labelledby="pills-table-tab" tabindex="0">
 
-        <div class="container h-100">
-            <div class="row h-100">
-                <div class="col w-25 " id="tableViz">
-                    <table class="table table-responsive w-100" style="height:500px;overflow:auto">
+                <div id="tableViz" class="table-responsive">
+                    <table class="table">
+                        <caption class="caption-top" id="rowCaptionTop"> </caption>
                         <thead></thead>
                         <tbody></tbody>
+                        <caption id="rowCaptionBottom"> </caption>
                     </table>
                 </div>
+
+            </div>
+            <div class="tab-pane fade" id="pills-globe" role="tabpanel" aria-labelledby="pills-globe-tab" tabindex="0">
                 <div id="globeViz" class="col w-75 "></div>
-            </div> 
-        </div>
+            </div>
+            <div class="tab-pane fade" id="pills-download" role="tabpanel" aria-labelledby="pills-download-tab" tabindex="0">
 
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">About Gna.Iata.Js Demo</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div id="downloadArea" css="d-none">
+                    <button type="button" id="saveButton">Download</button>
+                    <div id="fileWriteError" class="invalid-feedback"></div>
+                    <div class="form-check" title="If checked, ssim output will be UTC mode">
+                        <input class="form-check-input" type="checkbox" value="" id="checkUTC" checked>
+                        <label class="form-check-label" for="checkLocal">
+                            UTC mode
+                        </label>
                     </div>
-                    <div class="modal-body">
-
-                        <p>
-                            This website demonstrates use of (<a href="https://www.nuget.org/packages/Gna.Iata">Gna.Iata library</a>) in regular JavaScript website (as wasm module). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.
-                        </p>
-                        <ul>
-                            <li>
-                                Ssim parsing: <a class="link" href="https://www.avionworx.aero">Avionworx</a> [wasm]
-                            </li>
-                            <li>
-                                3D Visualisation: <a class="link" href="https://globe.gl/">Globe.GL</a> [threejs]
-                            </li>
-                            <li>
-                                Airport data: <a class="link" href="https://ourairports.com/data/">OurAirports</a>
-                            </li>
-                            <li>
-                                CSS Style:<a class="link" href="https://getbootstrap.com/">Bootstrap</a> [css]
-                            </li>
-                        </ul>
+                    <div class="form-check" title="If checked, ssim file will be inside zip archive">
+                        <input class="form-check-input" type="checkbox" value="" id="checkCompressed" checked>
+                        <label class="form-check-label" for="checkCompressed">
+                            Compressed (zip)
+                        </label>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="form-check" title="If checked, duplicated legs will be ignored">
+                        <input class="form-check-input" type="checkbox" value="" id="checkIgnoreDuplicates" checked>
+                        <label class="form-check-label" for="checkIgnoreDuplicates">
+                            Ignore Duplicated legs
+                        </label>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
-        <script src="//cdn.jsdelivr.net/npm/globe.gl"></script>
-        <script type="module" src="index.js"></script>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">About Gna.Iata.Js Demo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <p>
+                        This website demonstrates use of (<a href="https://www.nuget.org/packages/Gna.Iata">Gna.Iata library</a>) in regular JavaScript website (as wasm module). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.
+                    </p>
+                    <ul>
+                        <li>
+                            Ssim parsing: <a class="link" href="https://www.avionworx.aero">Avionworx</a> [wasm]
+                        </li>
+                        <li>
+                            3D Visualisation: <a class="link" href="https://globe.gl/">Globe.GL</a> [threejs]
+                        </li>
+                        <li>
+                            Airport data: <a class="link" href="https://ourairports.com/data/">OurAirports</a>
+                        </li>
+                        <li>
+                            Random data: <a class="link" href="https://github.com/jpatokal/openflights/tree/master/data">jpatokal /openflights</a>
+                        </li>
+                        <li>
+                            CSS Style:<a class="link" href="https://getbootstrap.com/">Bootstrap</a> [css]
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/globe.gl"></script>
+    <script type="module" src="index.js"></script>
 
 </body>
 </html>
