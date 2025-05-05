@@ -5,12 +5,13 @@ import { Season } from './GnaIata/Gna.Iata.Season.js'
 import { SsimReader } from './GnaIata/Gna.Iata.SsimReader.js'
 import { SsimWriter } from './GnaIata/Gna.Iata.SsimWriter.js'
 
-import { MakeGlobe, ClearGlobe } from './globe.js'
+import { MakeGlobe, ClearGlobe, GetAirports } from './globe.js'
 
 import { GetSampleLegs } from "./sampleSsim.js"
 
 let legs = [];
 let routes = [];
+let airports = [];
 let fileName = "";
 
 const rowLimit = 1000;
@@ -26,15 +27,10 @@ function bindFileInput() {
     fileInput.addEventListener("change", async () => {
         if (fileInput.files.length == 1) {
 
-            legs = [];
-            routes = [];
-            fileName = "";
-
             hideReadError();
             hideWriteError();
 
-            ClearGlobe();
-            ClearTable();
+            clearAll();
 
             showProgressBar("Loading ssim file");
             try { 
@@ -42,8 +38,7 @@ function bindFileInput() {
                 const stats = document.getElementById("fileStats");
                 stats.innerText = "";
 
-                let ssimReader = new SsimReader();
-
+                let ssimReader = new SsimReader(); 
 
                 ssimReader.Options.SkipValidation = isChecked("checkSkipValidation");
                 ssimReader.Options.SuppressSsimErrors = isChecked("checkSuppressSsimErrors");
@@ -58,21 +53,11 @@ function bindFileInput() {
 
                 console.log(`ReadFromFileAsync: ${legs.length} legs, time: ${parsingTimeConsumed}`);
 
-                routes = getRoutes(legs); 
-                
+                routes = getRoutes(legs);  
 
-                stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes \n`
-/// Parsing time taken: ${ (parsingTimeConsumed / 1000).toFixed(2) } seconds `;
+                stats.innerText = `Total of ${legs.length} legs \n Total of ${routes.length} routes \n`; 
 
-                start = performance.now();
-
-                MakeGlobe(routes);
-
-                let renderTimeConsumed = performance.now() - start;
-
-                CreateTable(legs);
-
-//                stats.innerText += `\n 3d prepare time taken: ${(renderTimeConsumed / 1000).toFixed(2)} seconds `;
+                await setAll();
             }
             catch(ex)
             {
@@ -98,7 +83,7 @@ function bindFileInput() {
                 ssimWriter.Legs = legs;                
                 let start = performance.now();
 
-                var filename = fileName.split('.').slice(0, -1);
+                let filename = fileName.split('.').slice(0, -1);
 
                 let data = "";
 
@@ -132,9 +117,8 @@ function bindFileInput() {
 
     sampleButton?.addEventListener("click", async () => {
 
-       // showProgressBar("Getting sample legs");
-        ClearGlobe();
-        ClearTable();
+        showProgressBar("Loading some data");
+        clearAll();
 
         try {
             fileName = "sampleLegs.ssim";
@@ -142,8 +126,7 @@ function bindFileInput() {
 
             routes = getRoutes(legs);
 
-            MakeGlobe(routes); 
-            CreateTable(legs);
+            await setAll();
         }
         catch (ex) {
             showWriteError(ex);
@@ -153,6 +136,25 @@ function bindFileInput() {
         }
     });
 } 
+
+function clearAll() {
+
+    legs = [];
+    routes = [];
+    fileName = "";
+
+    ClearGlobe();
+
+    ClearTable("legsTable");
+    ClearTable("airportsTable");
+}
+
+async function setAll() {
+    await MakeGlobe(routes);
+    airports = GetAirports();
+    CreateTable("legsTable", legs);
+    CreateTable("airportsTable", airports);
+}
 
 function download(data, filename) {
 
@@ -167,7 +169,7 @@ function download(data, filename) {
 }
 
 function isChecked(id) {
-    var checkbox = document.getElementById(id);
+    let checkbox = document.getElementById(id);
     if (checkbox)
         return checkbox.checked;
     return false;
@@ -175,12 +177,12 @@ function isChecked(id) {
 
 function getRoutes(legs) {
 
-    var legRoutes = new Set();
-    var routes = [];
+    let legRoutes = new Set();
+    let routes = [];
 
     legs.forEach(leg => { 
 
-        var route = leg.DepAirportCode + leg.ArrAirportCode;
+        let route = leg.DepAirportCode + leg.ArrAirportCode;
 
         if (!legRoutes.has(route)) {
             legRoutes.add(route);
@@ -194,7 +196,8 @@ function updateControls() {
     if (legs?.length > 0) {
 
         document.getElementById("pills-download-tab").removeAttribute('disabled');
-        document.getElementById("pills-table-tab").removeAttribute('disabled');
+        document.getElementById("pills-legs-tab").removeAttribute('disabled');
+        document.getElementById("pills-airports-tab").removeAttribute('disabled');
         document.getElementById("pills-globe-tab").removeAttribute('disabled');
 
         if (legs?.length > rowLimit) {
@@ -206,11 +209,13 @@ function updateControls() {
         document.getElementById("rowCaptionTop").innerHTML = "";
         document.getElementById("rowCaptionBottom").innerHTML = "";
         document.getElementById("pills-download-tab").setAttribute('disabled', '');
-        document.getElementById("pills-table-tab").setAttribute('disabled', '');
+        document.getElementById("pills-legs-tab").setAttribute('disabled', '');
+        document.getElementById("pills-airports-tab").setAttribute('disabled', '');
         document.getElementById("pills-globe-tab").setAttribute('disabled', '');
     }
 
     document.getElementById("legsCount").innerHTML = legs?.length ?? 0;
+    document.getElementById("airportsCount").innerHTML = airports?.length ?? 0;
     document.getElementById("routesCount").innerHTML = routes?.length ?? 0;
 
 
@@ -218,16 +223,16 @@ function updateControls() {
 }
 
 function hideProgressBar() {
-    document.getElementById("progressText").innerHTML = "";
-    document.getElementById("out").classList.add("d-none");
-    document.getElementById("globeViz").classList.remove("d-none");
+    document.getElementById("out")?.removeAttribute("title");
+    document.getElementById("out").classList.add("d-none"); 
+    document.getElementById("pills-demo-tab").removeAttribute('disabled');
     updateControls();
 }
 
 function showProgressBar(text) {
-    document.getElementById("progressText").innerHTML = text;
-    document.getElementById("out").classList.remove("d-none");
-    document.getElementById("globeViz").classList.add("d-none");
+    document.getElementById("pills-demo-tab").removeAttribute('disabled');
+    document.getElementById("out")?.setAttribute("title", text);
+    document.getElementById("out").classList.remove("d-none"); 
     updateControls();
 }
 
@@ -265,29 +270,26 @@ function TestSeason() {
 
     const seasonNow = new Season().Now();
     const seasonPrev = seasonNow.Previous();
-    const seasonNext = seasonNow.Next();
-    const seasonW22 = seasonNow.CreateFromName("W22");
+    seasonNow.Next();
+    seasonNow.CreateFromName("W22");
     const season2015 = seasonNow.CreateFromDate(new Date(2015, 11, 17, 3, 24, 0));
-    const season2015contains = season2015.Contains(new Date(2015, 11, 17, 3, 24, 0));
+    season2015.Contains(new Date(2015, 11, 17, 3, 24, 0));
 
     console.log(`Now is ${seasonNow.Name}, previous was ${seasonPrev.Name}`); 
 }
 
-function ClearTable() {
+function ClearTable(tableId) {
 
-    var thead = document.querySelector("thead");
-    thead.innerHTML = "";
-
-    var tbody = document.querySelector("tbody");
-    tbody.innerHTML = "";
+    let table = document.getElementById(tableId);
+    table.getElementsByTagName("thead")[0].innerHTML = "";
+    table.getElementsByTagName("tbody")[0].innerHTML = "";
 }
 
-function CreateTable(parsed_data) {
+function CreateTable(tableId, parsed_data) {
 
     const columns = new Set(); 
 
     parsed_data.forEach(json_data_set => {
-        var tr = document.createElement("tr");
         Object.keys(json_data_set).forEach(key => {
 
             if (json_data_set[key]) {
@@ -296,18 +298,18 @@ function CreateTable(parsed_data) {
         });
     });
 
-    var th = document.createElement("tr");
-    columns.forEach(col => { 
-        var td = document.createElement("th");
-        td.innerText = col;
-        th.appendChild(td)
-    });
-    document.querySelector("thead").appendChild(th)
+    let table = document.getElementById(tableId); 
 
-    var rowCount = 0;
+    columns.forEach(col => { 
+        let th = document.createElement("th");
+        th.innerText = col; 
+        table.getElementsByTagName("thead")[0].appendChild(th);
+    });
+
+    let rowCount = 0; 
 
     parsed_data.forEach(json_data_set => {
-        var tr = document.createElement("tr");
+        let tr = document.createElement("tr");
 
         if (rowCount++ > rowLimit)
             return;
@@ -315,9 +317,9 @@ function CreateTable(parsed_data) {
         Object.keys(json_data_set).forEach(key => { 
 
             if (columns.has(key)) {
-                var td = document.createElement("td")
+                let td = document.createElement("td")
 
-                var cell = json_data_set[key];
+                let cell = json_data_set[key];
 
                 if (cell instanceof Date) {
                     if (key == "FlightDate")
@@ -330,13 +332,13 @@ function CreateTable(parsed_data) {
             }  
         });
 
-        document.querySelector("tbody").appendChild(tr)
+        table.getElementsByTagName("tbody")[0].appendChild(tr);
 
-    });
+    }); 
 }
 
 const dateFormat = (date, locale = "en-US") => {
-    let d = date.getDate(),
+    let  
         m = date.toLocaleString(locale, { month: 'long' }).toUpperCase(),
         y = date.getFullYear().toString().substr(-2);
 
@@ -344,7 +346,7 @@ const dateFormat = (date, locale = "en-US") => {
 }
 
 const dateTimeFormat = (date, locale = "en-US") => {
-    let d = date.getDate(),
+    let  
         m = date.toLocaleString(locale, { month: 'long' }).toUpperCase(),
         y = date.getFullYear().toString().substr(-2),
         h = date.getHours(),

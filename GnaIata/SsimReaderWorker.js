@@ -4,11 +4,11 @@ import { WorkerInitializedMessage, WorkerResponseMessage } from './worker.js';
 
 onmessage = async (e) => {  
 
-    var reader = e.data[0];
-    var data = e.data[1];
-    var isZip = e.data[2];
+    let reader = e.data[0];
+    let data = e.data[1];
+    let isZip = e.data[2];
     let stringResult = "";
-    let s = new WorkerResponseMessage(null, null);
+    let response;
 
     try {
         const avionworx = await GnaIataJs.Init();
@@ -18,15 +18,15 @@ onmessage = async (e) => {
         else
             stringResult = await avionworx.Gna.Iata.Js.SsimReader.ReadFromStreamAsync(reader, data, isZip);
 
-        s = new WorkerResponseMessage(JSON.parse(stringResult), null);
+        response = new WorkerResponseMessage(JSON.parse(stringResult), null);
     }
     catch (e) {
         console.log(e.message);
 
-        s = new WorkerResponseMessage(JSON.parse(reader), e.message);
+        response = new WorkerResponseMessage(JSON.parse(reader), e.message);
     } 
 
-    postMessage(s, s); 
+    postMessage(response, response); 
 }; 
 
 postMessage(WorkerInitializedMessage);

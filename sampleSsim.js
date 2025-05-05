@@ -4,32 +4,25 @@ import { FlightLeg } from './GnaIata/Gna.Iata.FlightLeg.js';
 
 export async function GetSampleLegs() {
 
-    var legs = await fetch('https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat')
+    let legs = await fetch('https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat')
         .then(res => res.text())
         .then(d => GetLegs(d));
 
     return legs;
-}
-
-function addHours(date, hours) {
-    const hoursToAdd = hours * 60 * 60 * 1000;
-    date.setTime(date.getTime() + hoursToAdd);
-    return date;
-}
+} 
 
 function GetLegs(d) {
 
-    var flights = new Map();
-    var prevAirline = ""; 
+    let flights = new Map();
 
-    var rows = csvParseRows(d);
+    let rows = csvParseRows(d);
 
     rows.forEach(row => {
 
         let leg = new FlightLeg();
         leg.AirlineCode = row[0];
 
-        var legs = flights.get(leg.AirlineCode);
+        let legs = flights.get(leg.AirlineCode);
         if (!legs)
             legs = [];
             
@@ -41,7 +34,7 @@ function GetLegs(d) {
         leg.STD = new Date(new Date().toUTCString().slice(0, -3));
         leg.STDLocal = leg.STD;
         leg.STA = new Date(new Date().toUTCString().slice(0, -3));
-        leg.STA.setHours(leg.STA.getHours() + 1);
+        leg.STA.setHours(leg.STA.getHours() + getRandomInt(3)+1);
         leg.STALocal = leg.STA;
         leg.AcTypeCode = row[8].split(" ")[0]; 
 
@@ -51,7 +44,7 @@ function GetLegs(d) {
         
     }); 
 
-    var ret = []
+    let ret = []
 
     let random = getRandomInt(flights.size);
 
@@ -70,6 +63,6 @@ function getRandomInt(max) {
 }
 
 function UtcNow() { 
-    var tmLoc = new Date(); 
+    let tmLoc = new Date(); 
     return new Date(tmLoc.getTime() + tmLoc.getTimezoneOffset() * 60000);
 }

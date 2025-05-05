@@ -1,5 +1,5 @@
-﻿<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html> 
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Gna.Iata.Js</title>
@@ -7,54 +7,57 @@
 </head>
 <body>
 
-
-    <div id="out" style="font-size:50px;position:absolute;left:25%;right:25%;top:25%;bottom:50%">
+    <div id="out" style="font-size:50px;position:absolute;top:0%;right:15px">
         <div class="d-flex align-items-center">
-            <strong id="progressText">Loading...</strong>
-            <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+            <div class="spinner-border ms-auto" aria-hidden="true"></div>
         </div>
     </div>
 
     <div id="in">
-        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <ul class="nav nav-tabs mb-3" id="pills-tab">
 
-            <li class="nav-item link" role="presentation">
+            <li class="nav-item link">
                 <button class="nav-link" id="pills-demo-tab"
                         type="button" role="tab" title="Load some random example data">
                     🎲 Shuffle
                 </button>
             </li>
 
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pills-upload-tab" data-bs-toggle="pill" data-bs-target="#pills-upload" type="button" role="tab" aria-controls="pills-upload" aria-selected="true">⬆ SSIM Upload</button>
+            <li class="nav-item">
+                <button class="nav-link active" id="pills-upload-tab" data-bs-toggle="pill" data-bs-target="#pills-upload" type="button" role="tab" aria-controls="pills-upload" aria-selected="true">
+                    📥 SSIM Upload
+                </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-table-tab" data-bs-toggle="pill" data-bs-target="#pills-table" type="button" role="tab" aria-controls="pills-table" aria-selected="false">
+            <li class="nav-item">
+                <button class="nav-link" id="pills-legs-tab" data-bs-toggle="pill" data-bs-target="#pills-legs" type="button" role="tab" aria-controls="pills-legs" aria-selected="false">
                     ✈Legs <span class="badge text-bg-light" id="legsCount"></span>
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item">
+                <button class="nav-link" id="pills-airports-tab" data-bs-toggle="pill" data-bs-target="#pills-airports" type="button" role="tab" aria-controls="pills-airports" aria-selected="false">
+                    🏙Airports <span class="badge text-bg-light" id="airportsCount"></span>
+                </button>
+            </li>
+            <li class="nav-item">
                 <button class="nav-link" id="pills-globe-tab" data-bs-toggle="pill" data-bs-target="#pills-globe" type="button" role="tab" aria-controls="pills-globe" aria-selected="false">
                     🌎 Routes<span class="badge text-bg-light" id="routesCount"></span>
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pills-download-tab" data-bs-toggle="pill" data-bs-target="#pills-download" type="button" role="tab" aria-controls="pills-download" aria-selected="false">⬇SSIM Download</button>
+            <li class="nav-item">
+                <button class="nav-link" id="pills-download-tab" data-bs-toggle="pill" data-bs-target="#pills-download" type="button" role="tab" aria-controls="pills-download" aria-selected="false">
+                    📤 SSIM Download
+                </button>
             </li>
 
-            <li class="nav-item" role="presentation">
+            <li class="nav-item">
                 <button class="nav-link" id="pills-about-tab"
                         data-bs-toggle="modal" data-bs-target="#exampleModal" type="button" role="tab" aria-controls="pills-about" aria-selected="false">
                     ℹAbout
                 </button>
             </li>
         </ul>
-        <hr />
         <div class="tab-content" id="pills-tabContent">
-            <div class="tab-pane fade show active" id="pills-upload" role="tabpanel" aria-labelledby="pills-upload-tab" tabindex="0">
-
-
-                <h1>Select plain or zip-compressed SSIM file</h1>
+            <div class="tab-pane fade show active" id="pills-upload" aria-labelledby="pills-upload-tab">
 
                 <input type="file" id="fileInput" class="w-75 is-invalid">
                 <div id="fileError" class="invalid-feedback"></div>
@@ -80,22 +83,30 @@
                 <p id="fileStats">
                 </p>
             </div>
-            <div class="tab-pane fade" id="pills-table" role="tabpanel" aria-labelledby="pills-table-tab" tabindex="0">
+            <div class="tab-pane fade" id="pills-legs" aria-labelledby="pills-legs-tab">
 
-                <div id="tableViz" class="table-responsive">
-                    <table class="table">
+                <div class="table-responsive">
+                    <table class="table" id="legsTable">
                         <caption class="caption-top" id="rowCaptionTop"> </caption>
-                        <thead></thead>
+                        <thead><tr><th></th></tr></thead>
                         <tbody></tbody>
                         <caption id="rowCaptionBottom"> </caption>
                     </table>
                 </div>
+            </div>
+            <div class="tab-pane fade" id="pills-airports" aria-labelledby="pills-airports-tab">
 
+                <div class="table-responsive">
+                    <table class="table" id="airportsTable">
+                        <thead><tr><th></th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="tab-pane fade" id="pills-globe" role="tabpanel" aria-labelledby="pills-globe-tab" tabindex="0">
-                <div id="globeViz" class="col w-75 "></div>
+            <div class="tab-pane fade" id="pills-globe" aria-labelledby="pills-globe-tab">
+                <div id="globeViz" class="col" style="overflow:hidden"></div>
             </div>
-            <div class="tab-pane fade" id="pills-download" role="tabpanel" aria-labelledby="pills-download-tab" tabindex="0">
+            <div class="tab-pane fade" id="pills-download" aria-labelledby="pills-download-tab">
 
                 <div id="downloadArea" css="d-none">
                     <button type="button" id="saveButton">Download</button>
@@ -126,7 +137,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -136,14 +147,14 @@
                 <div class="modal-body">
 
                     <p>
-                        This website demonstrates use of (<a href="https://www.nuget.org/packages/Gna.Iata">Gna.Iata library</a>) in regular JavaScript website (as wasm module). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.
+                        This website demonstrates use of .NET (<a href="https://www.nuget.org/packages/Gna.Iata">Gna.Iata library</a>) in regular JavaScript website (as wasm module). Instead of rewriting everything for the web, developers can write the logic once in C# and turn it into code that runs smoothly in any browser. It’s a smart way to save time, reduce complexity, and keep everything working consistently across different platforms.
                     </p>
                     <ul>
                         <li>
                             Ssim parsing: <a class="link" href="https://www.avionworx.aero">Avionworx</a> [wasm]
                         </li>
                         <li>
-                            3D Visualisation: <a class="link" href="https://globe.gl/">Globe.GL</a> [threejs]
+                            3D Visualization: <a class="link" href="https://globe.gl/">Globe.GL</a> [threejs]
                         </li>
                         <li>
                             Airport data: <a class="link" href="https://ourairports.com/data/">OurAirports</a>
@@ -162,6 +173,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
     <script src="//cdn.jsdelivr.net/npm/globe.gl"></script>

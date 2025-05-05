@@ -57,7 +57,7 @@ async function ReadFromFileAsync(reader, file, isZip) {
 
     const data = await readFile(file, "readAsArrayBuffer"); 
      
-    var array = new Uint8Array(data);
+    let array = new Uint8Array(data);
 
     return await ReadFromStreamAsync(reader, array, isZip); 
 }

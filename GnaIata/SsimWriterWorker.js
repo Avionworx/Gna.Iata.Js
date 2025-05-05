@@ -4,10 +4,10 @@ import { WorkerInitializedMessage, WorkerResponseMessage } from './worker.js';
 
 onmessage = async (e) => {  
 
-    var writer = e.data[0];
-    var isZip = false;
-    var fileName = null;
-    var isStream = false;
+    let writer = e.data[0];
+    let isZip = false;
+    let fileName = null;
+    let isStream = false;
         
     if (e.data.length > 1) {
         if (typeof e.data[1] === 'string' || e.data[1] instanceof String) {
@@ -21,24 +21,24 @@ onmessage = async (e) => {
     if (e.data.length > 2)
         isZip = e.data[2]; 
 
-    let s = new WorkerResponseMessage(null, null);
+    let response;
 
     try {
         const avionworx = await GnaIataJs.Init();
 
         let res = "";
         if (isStream)
-            res = await avionworx.Gna.Iata.Js.SsimWriter.WriteToStreamAsync(writer, fileName, isZip); 
+            res = avionworx.Gna.Iata.Js.SsimWriter.WriteToStream(writer, fileName, isZip); 
         else
-            res = await avionworx.Gna.Iata.Js.SsimWriter.WriteToStringAsync(writer, isZip); 
+            res = await avionworx.Gna.Iata.Js.SsimWriter.WriteToStringAsync(writer); 
 
-        s = new WorkerResponseMessage(res, null);        
+        response = new WorkerResponseMessage(res, null);        
     }
     catch (e) { 
         console.log(e.message);
-        s = new WorkerResponseMessage(JSON.parse(writer), e.message); 
+        response = new WorkerResponseMessage(JSON.parse(writer), e.message); 
     } 
-    postMessage(s,s); 
+    postMessage(response,response); 
 }; 
 
 postMessage(WorkerInitializedMessage);

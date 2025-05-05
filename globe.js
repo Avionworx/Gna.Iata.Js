@@ -1,38 +1,36 @@
 ﻿import { csvParseRows } from 'https://esm.sh/d3-dsv';
 
+const routesLimit = 1000;
+
 let myGlobe = null;
 
-export function MakeGlobe(legs) {
-     
+let Airports = new Map();
+
+export async function MakeGlobe(legs) {
+
     const OPACITY = 1;
 
     if (myGlobe == null)
-        myGlobe = new Globe(document.getElementById('globeViz'))//, { width:100,height:100 })
-        .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
+        myGlobe = new Globe(document.getElementById('globeViz'))
+            .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg')
             .showGraticules(true)
-            .showAtmosphere(true)  
+            .showAtmosphere(true)
 
-        .arcLabel(d => `${d.airline}: ${d.srcIata} &#8594; ${d.dstIata}`)
-        .arcStartLat(d => d.srcAirport.lat)
-        .arcStartLng(d => d.srcAirport.lng)
-        .arcEndLat(d => d.dstAirport.lat)
-        .arcEndLng(d => d.dstAirport.lng)
-        .arcColor(d => [`rgba(0, 255, 0, ${OPACITY})`, `rgba(255, 0, 0, ${OPACITY})`])
-        .arcDashLength(0.8)
-        .arcDashGap(0.8)
-        .arcDashAnimateTime(1500)
-        .onArcHover(hoverArc => myGlobe
-            .arcColor(d => {
-                const op = !hoverArc ? OPACITY : d === hoverArc ? 0.9 : OPACITY / 4;
-                return [`rgba(0, 255, 0, ${op})`, `rgba(255, 0, 0, ${op})`];
-            })
-        ) 
-        .pointColor(() => 'orange')
-        .pointAltitude(0)
-        .pointRadius(0.04)
-        .pointsMerge(true);
- 
-    let legAirports = new Set(); 
+            .arcLabel(d => `${d.airline}: ${d.srcIata} &#8594; ${d.dstIata}`)
+            .arcStartLat(d => d.srcAirport.lat)
+            .arcStartLng(d => d.srcAirport.lng)
+            .arcEndLat(d => d.dstAirport.lat)
+            .arcEndLng(d => d.dstAirport.lng)
+            .arcColor(d => [`rgba(0, 255, 0, ${OPACITY})`, `rgba(255, 0, 0, ${OPACITY})`])
+            .arcDashLength(0.8)
+            .arcDashGap(0.8)
+            .arcDashAnimateTime(1500)
+            .pointColor(() => 'orange')
+            .pointAltitude(0)
+            .pointRadius(0.04)
+            .pointsMerge(true);
+
+    let legAirports = new Set();
     let legRoutes = new Set();
     let routes = [];
 
@@ -42,7 +40,7 @@ export function MakeGlobe(legs) {
 
         let route = leg.DepAirportCode + leg.ArrAirportCode;
 
-        if (routes.length > 1000) return;
+        if (routes.length > routesLimit) return;
 
         if (!legRoutes.has(route)) {
             legRoutes.add(route);
@@ -53,40 +51,39 @@ export function MakeGlobe(legs) {
                     codeshare: "",
                     dstIata: leg.ArrAirportCode,
                     equipment: leg.AcTypeCode,
-                    srcIata: leg.DepAirportCode, 
+                    srcIata: leg.DepAirportCode,
                 });
-        } 
+        }
     });
 
-    Promise.all([
-        fetch('https://davidmegginson.github.io/ourairports-data/airports.csv')
-            .then(res => res.text())
-            .then(d => GetAirportsByIata(d, legAirports)), 
-    ]).then(([byIata]) => {
-         
-        const filteredRoutes = routes
-            .filter(d => byIata.has(d.srcIata) && byIata.has(d.dstIata)) // exclude unknown airports 
-            .map(d => Object.assign(d, {
-                srcAirport: byIata.get(d.srcIata),
-                dstAirport: byIata.get(d.dstIata)
-            })) 
-        var a = [...byIata.values()];
-        var c = getLatLngCenter(a);
-        const MAP_CENTER = { lat: c[0], lng: c[1], altitude: 0.4 };
+    Airports = await GetAirportsByIata(legAirports); 
 
-        myGlobe
-            .pointsData(a)
-            .arcsData(filteredRoutes)
-            .pointOfView(MAP_CENTER, 4000);
-    });
+    const filteredRoutes = routes
+        .filter(d => Airports.has(d.srcIata) && Airports.has(d.dstIata))  
+        .map(d => Object.assign(d, {
+            srcAirport: Airports.get(d.srcIata),
+            dstAirport: Airports.get(d.dstIata)
+        }))
+
+    let a = GetAirports();
+    let c = getLatLngCenter(a);
+    const MAP_CENTER = { lat: c[0], lng: c[1], altitude: 0.5 };
+
+    myGlobe
+        .pointsData(a)
+        .arcsData(filteredRoutes)
+        .pointOfView(MAP_CENTER, 4000);
 }
  
 
-function GetAirportsByIata(d, legAirports) {
+async function GetAirportsByIata(legAirports) {
 
-    var ret = new Map()
+    let d = await fetch('https://davidmegginson.github.io/ourairports-data/airports.csv')
+        .then(res => res.text());
 
-    var rows = csvParseRows(d); 
+    let ret = new Map()
+
+    let rows = csvParseRows(d); 
 
     rows.forEach(row => {
          
@@ -97,8 +94,7 @@ function GetAirportsByIata(d, legAirports) {
                 icao: row[12],
                 lat: parseFloat( row[4]),
                 lng: parseFloat( row[5]),
-                name: row[3],
-                airportId: row[0]
+                name: row[3] 
             }
 
             ret.set(airport.iata, airport);
@@ -108,7 +104,15 @@ function GetAirportsByIata(d, legAirports) {
     return ret;
 }
 
+export function GetAirports() {
+
+    return [...Airports.values()];
+}
+
+
 export function ClearGlobe() {
+
+    Airports = new Map();
 
     if (myGlobe != null) {
         myGlobe
@@ -119,30 +123,31 @@ export function ClearGlobe() {
 
 function rad2degr(rad) { return rad * 180 / Math.PI; }
 function degr2rad(degr) { return degr * Math.PI / 180; }
- 
+
+/// https://stackoverflow.com/questions/6671183/calculate-the-center-point-of-multiple-latitude-longitude-coordinate-pairs
 function getLatLngCenter(latLngInDegr) {
  
-    var sumX = 0;
-    var sumY = 0;
-    var sumZ = 0;
+    let sumX = 0;
+    let sumY = 0;
+    let sumZ = 0;
 
-    for (var i = 0; i < latLngInDegr.length; i++) {
-        var lat = degr2rad(latLngInDegr[i].lat);
-        var lng = degr2rad(latLngInDegr[i].lng);
+    for(let i = 0; i < latLngInDegr.length; i++) {
+        let iLat = degr2rad(latLngInDegr[i].lat);
+        let iLng = degr2rad(latLngInDegr[i].lng);
         // sum of cartesian coordinates
-        sumX += Math.cos(lat) * Math.cos(lng);
-        sumY += Math.cos(lat) * Math.sin(lng);
-        sumZ += Math.sin(lat);
+        sumX += Math.cos(iLat) * Math.cos(iLng);
+        sumY += Math.cos(iLat) * Math.sin(iLng);
+        sumZ += Math.sin(iLat);
     }
 
-    var avgX = sumX / latLngInDegr.length;
-    var avgY = sumY / latLngInDegr.length;
-    var avgZ = sumZ / latLngInDegr.length;
+    let avgX = sumX / latLngInDegr.length;
+    let avgY = sumY / latLngInDegr.length;
+    let avgZ = sumZ / latLngInDegr.length;
 
     // convert average x, y, z coordinate to latitude and longtitude
-    var lng = Math.atan2(avgY, avgX);
-    var hyp = Math.sqrt(avgX * avgX + avgY * avgY);
-    var lat = Math.atan2(avgZ, hyp);
+    let lng = Math.atan2(avgY, avgX);
+    let hyp = Math.sqrt(avgX * avgX + avgY * avgY);
+    let lat = Math.atan2(avgZ, hyp);
 
     return ([rad2degr(lat), rad2degr(lng)]);
 }

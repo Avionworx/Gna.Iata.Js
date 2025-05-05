@@ -3,7 +3,7 @@
 
 import { dotnet } from './framework/dotnet.js'  
  
-let exports = undefined;
+let exports;
 
 export async function Init()
 {

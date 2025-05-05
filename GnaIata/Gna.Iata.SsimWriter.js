@@ -25,8 +25,8 @@ async function WriteToStringAsync(writer, isZip) {
     }
     else {
         const avionworx = AssertLoaded();
-        let s = await avionworx.Gna.Iata.Js.SsimWriter.WriteToStringAsync(JSON.stringify(writer), isZip);
-        return s;
+        let string = await avionworx.Gna.Iata.Js.SsimWriter.WriteToStringAsync(JSON.stringify(writer), isZip);
+        return string;
     }
 } 
 
@@ -36,7 +36,7 @@ async function WriteToStreamAsync(writer, fileName, isZip) {
     }
     else {
         const avionworx = AssertLoaded();
-        let s = await avionworx.Gna.Iata.Js.SsimWriter.WriteToStreamAsync(JSON.stringify(writer), fileName, isZip);
-        return s;
+        let bytes = avionworx.Gna.Iata.Js.SsimWriter.WriteToStream(JSON.stringify(writer), fileName, isZip);
+        return bytes;
     }
 } 

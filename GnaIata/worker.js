@@ -11,7 +11,7 @@ export async function ExecuteAsync(url, message) {
 
     const worker = new Worker(new URL(url, import.meta.url), { type: "module" }); 
 
-    let resolver = undefined; 
+    let resolver; 
     const messagePromise = new Promise(
         (resolve) => resolver = resolve);  
 
